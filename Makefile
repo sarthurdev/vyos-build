@@ -228,7 +228,13 @@ test:
 		echo "Could not find build/live-image-amd64.hybrid.iso"
 		exit 1
 	fi
-	scripts/check-qemu-install --debug build/live-image-amd64.hybrid.iso
+
+	ARGS=''
+
+	if [ -n "${FILE}" ]; then
+		ARGS=" --file ${FILE}"
+	fi
+	scripts/check-qemu-install --debug $ARGS build/live-image-amd64.hybrid.iso
 
 .PHONY: testd
 .ONESHELL:

@@ -75,6 +75,8 @@ parser.add_argument('--configd', help='Execute testsuite with config daemon',
 parser.add_argument('--configtest', help='Execute load/commit config tests',
 				action='store_true',
 				default=False)
+parser.add_argument('--file', help='Run individual smoketest by filename',
+                default=None)
 
 args = parser.parse_args()
 
@@ -329,8 +331,13 @@ try:
 
     # run default smoketest suite
     if not args.configtest:
-        log.info('Executing VyOS smoketests')
-        c.sendline('/usr/bin/vyos-smoketest')
+        if args.file:
+            log.info(f'Executing VyOS smoketest: {args.file}')
+            c.sendline('/usr/libexec/vyos/tests/smoke/' + args.file)
+        else:
+            log.info('Executing VyOS smoketests')
+            c.sendline('/usr/bin/vyos-smoketest')
+
         i = c.expect(['\n +Invalid command:', '\n +Set failed',
                       'No such file or directory', r'\n\S+@\S+[$#]'], timeout=7200)
 

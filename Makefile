@@ -54,6 +54,11 @@ testc: checkiso
 testraid: checkiso
 	scripts/check-qemu-install --debug --configd --raid --configtest build/live-image-amd64.hybrid.iso
 
+.PHONY: testnetwork
+.ONESHELL:
+networktest: checkiso
+	scripts/network-qemu-install --debug --agents 1 --uefi build/live-image-amd64.hybrid.iso
+
 .PHONY: clean
 .ONESHELL:
 clean:

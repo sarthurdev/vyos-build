@@ -1,0 +1,82 @@
+From c8dfa8cecbb45b7c8677b0195fa2f49acd33dec7 Mon Sep 17 00:00:00 2001
+From: sarthurdev <965089+sarthurdev@users.noreply.github.com>
+Date: Tue, 22 Nov 2022 11:15:13 +0100
+Subject: [PATCH] Add reason and prefix delegation information to script
+ environment variable.
+
+Credit: https://github.com/opnsense/dhcp6c
+---
+ dhcp6c_script.c | 29 +++++++++++++++++++++++++++--
+ 1 file changed, 27 insertions(+), 2 deletions(-)
+
+diff --git a/dhcp6c_script.c b/dhcp6c_script.c
+index 05ccf8c..02989b9 100644
+--- a/dhcp6c_script.c
++++ b/dhcp6c_script.c
+@@ -84,14 +84,19 @@ client6_script(scriptpath, state, optinfo)
+ 	int nispservers, nispnamelen;
+ 	int bcmcsservers, bcmcsnamelen;
+ 	char **envp, *s;
+-	char reason[] = "REASON=NBI";
++	char reason[32];
++	char prefixinfo[32];
+ 	struct dhcp6_listval *v;
++	struct dhcp6_event ev;
+ 	pid_t pid, wpid;
++	struct dhcp6_listval *iav, *siav;
+ 
+ 	/* if a script is not specified, do nothing */
+ 	if (scriptpath == NULL || strlen(scriptpath) == 0)
+ 		return -1;
+ 
++	ev.state = state;
++
+ 	/* initialize counters */
+ 	dnsservers = 0;
+ 	ntpservers = 0;
+@@ -104,7 +109,7 @@ client6_script(scriptpath, state, optinfo)
+ 	nispnamelen = 0;
+ 	bcmcsservers = 0;
+ 	bcmcsnamelen = 0;
+-	envc = 2;     /* we at least include the reason and the terminator */
++	envc = 3;     /* we at least include the reason, prefix and the terminator */
+ 
+ 	/* count the number of variables */
+ 	for (v = TAILQ_FIRST(&optinfo->dns_list); v; v = TAILQ_NEXT(v, link))
+@@ -165,6 +170,8 @@ client6_script(scriptpath, state, optinfo)
+ 	/*
+ 	 * Copy the parameters as environment variables
+ 	 */
++	snprintf(reason, sizeof(reason), "REASON=%s",
++	    dhcp6_event_statestr(&ev));
+ 	i = 0;
+ 	/* reason */
+ 	if ((envp[i++] = strdup(reason)) == NULL) {
+@@ -173,6 +180,24 @@ client6_script(scriptpath, state, optinfo)
+ 		ret = -1;
+ 		goto clean;
+ 	}
++
++	/* prefix delegation */
++	for (iav = TAILQ_FIRST(&optinfo->iapd_list); iav; iav = TAILQ_NEXT(iav, link)) {
++		for (siav = TAILQ_FIRST(&iav->sublist); siav; siav = TAILQ_NEXT(siav, link)) {
++			if (siav->type == DHCP6_LISTVAL_PREFIX6) {
++				snprintf(prefixinfo, sizeof(prefixinfo),
++				    "PDINFO=%s/%d",
++				    in6addr2str(&siav->val_prefix6.addr, 0),
++				    siav->val_prefix6.plen);
++				if ((envp[i++] = strdup(prefixinfo)) == NULL) {
++					d_printf(LOG_NOTICE, FNAME, "failed to allocate prefixinfo strings");
++					ret = -1;
++					goto clean;
++				}
++			}
++		}
++	}
++
+ 	/* "var=addr1 addr2 ... addrN" + null char for termination */
+ 	if (dnsservers) {
+ 		elen = sizeof (dnsserver_str) +
+-- 
+2.32.0.windows.1
+

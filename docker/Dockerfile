@@ -641,6 +641,48 @@ RUN apt-get update && apt-get install -y \
       gnulib \
       libtool
 
+# Packages needed for ntopng
+RUN apt-get update && apt-get install --no-install-recommends -y \
+      gettext \
+      flex \
+      bison \
+      libtool \
+      autoconf \
+      automake \
+      pkg-config \
+      libpcap-dev \
+      libjson-c-dev \
+      libnuma-dev \
+      libpcre2-dev \
+      libmaxminddb-dev \
+      librrd-dev \
+      libxml2-dev \
+      libtool-bin \
+      rrdtool \
+      autogen \
+      redis-server \
+      libsqlite3-dev \
+      libhiredis-dev \
+      libcurl4-openssl-dev \
+      libpango1.0-dev \
+      libcairo2-dev \
+      libnetfilter-queue-dev \
+      zlib1g-dev \
+      libssl-dev \
+      libcap-dev \
+      libnetfilter-conntrack-dev \
+      libreadline-dev \
+      libldap2-dev \
+      rename \
+      libsnmp-dev \
+      libexpat1-dev \
+      libsnmp-dev \
+      libradcli-dev \
+      libmariadb-dev \
+      npm
+
+RUN npm install -g uglify-es clean-css-cli
+
 #
 # fpm: a command-line program designed to help you build packages (e.g. deb)
 #

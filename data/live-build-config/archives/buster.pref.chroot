@@ -6,6 +6,22 @@ Package: bash-completion
 Pin: release n=buster
 Pin-Priority: 600
 
+Package: ntopng
+Pin: release n=buster
+Pin-Priority: 600
+
+Package: libndpi*
+Pin: release n=buster
+Pin-Priority: 600
+
+Package: ntopng-data
+Pin: release n=buster
+Pin-Priority: 600
+
+Package: libjson-c3
+Pin: release n=buster
+Pin-Priority: 600
+
 Package: *
 Pin: release n=buster
 Pin-Priority: -10

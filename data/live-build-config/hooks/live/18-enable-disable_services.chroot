@@ -58,6 +58,8 @@ systemctl disable haproxy.service
 systemctl disable miniupnpd.service
 systemctl disable owamp-server.service
 systemctl disable twamp-server.service
+systemctl disable redis-server.service
+systemctl disable ntopng.service
 
 echo I: Enabling services
 systemctl enable frr.service

@@ -1,6 +1,7 @@
 SHELL := /bin/bash
 
 build_dir := build
+arch := $(shell dpkg-architecture -qDEB_TARGET_ARCH)
 
 .PHONY: all
 all:
@@ -11,7 +12,7 @@ all:
 .ONESHELL:
 iso: clean
 	set -o pipefail
-	@./build-vyos-image iso
+	@./build-vyos-image --architecture $(arch) iso
 	exit 0
 
 .PHONY: prepare-package-env
@@ -24,35 +25,35 @@ prepare-package-env:
 .PHONY: checkiso
 .ONESHELL:
 checkiso:
-	if [ ! -f build/live-image-amd64.hybrid.iso ]; then
-		echo "Could not find build/live-image-amd64.hybrid.iso"
+	if [ ! -f build/live-image-$(arch).hybrid.iso ]; then
+		echo "Could not find build/live-image-$(arch).hybrid.iso"
 		exit 1
 	fi
 
 .PHONY: test
 .ONESHELL:
 test: checkiso
-	scripts/check-qemu-install --debug --uefi build/live-image-amd64.hybrid.iso
+	scripts/check-qemu-install --debug --uefi build/live-image-$(arch).hybrid.iso
 
 .PHONY: test-no-interfaces
 .ONESHELL:
 test-no-interfaces: checkiso
-	scripts/check-qemu-install --debug --no-interfaces build/live-image-amd64.hybrid.iso
+	scripts/check-qemu-install --debug --no-interfaces build/live-image-$(arch).hybrid.iso
 
 .PHONY: testd
 .ONESHELL:
 testd: checkiso
-	scripts/check-qemu-install --debug --configd build/live-image-amd64.hybrid.iso
+	scripts/check-qemu-install --debug --configd build/live-image-$(arch).hybrid.iso
 
 .PHONY: testc
 .ONESHELL:
 testc: checkiso
-	scripts/check-qemu-install --debug --configd --configtest build/live-image-amd64.hybrid.iso
+	scripts/check-qemu-install --debug --configd --configtest build/live-image-$(arch).hybrid.iso
 
 .PHONY: testraid
 .ONESHELL:
 testraid: checkiso
-	scripts/check-qemu-install --debug --configd --raid --configtest build/live-image-amd64.hybrid.iso
+	scripts/check-qemu-install --debug --configd --raid --configtest build/live-image-$(arch).hybrid.iso
 
 .PHONY: clean
 .ONESHELL:

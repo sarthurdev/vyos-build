@@ -259,12 +259,21 @@ RUN apt-get update && apt-get install -y \
       libev-dev
 
 # Packages needed for Qemu test-suite
-# This is for now only supported on i386 and amd64 platforms
 RUN if dpkg-architecture -ii386 || dpkg-architecture -iamd64; then \
       apt-get update && apt-get install -y \
         python3-pexpect \
         ovmf \
         qemu-system-x86 \
+        qemu-utils \
+        qemu-kvm; \
+    fi
+
+RUN if dpkg-architecture -iarm64; then \
+      apt-get update && apt-get install -y \
+        python3-pexpect \
+        ovmf \
+        qemu-efi \
+        qemu-system-arm \
         qemu-utils \
         qemu-kvm; \
     fi

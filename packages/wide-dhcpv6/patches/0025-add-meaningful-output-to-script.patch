@@ -1,0 +1,121 @@
+From: sarthurdev <965089+sarthurdev@users.noreply.github.com>
+Date: Tue, 7 Mar 2023 14:08:20 +0100
+Subject: add meaningful output to script
+
+---
+ dhcp6c.c        |  4 ++--
+ dhcp6c_script.c | 42 +++++++++++++++++++++++++++++++++++++++---
+ 2 files changed, 41 insertions(+), 5 deletions(-)
+
+diff --git a/dhcp6c.c b/dhcp6c.c
+index 849a575..83f086a 100644
+--- a/dhcp6c.c
++++ b/dhcp6c.c
+@@ -146,7 +146,7 @@ struct dhcp6_timer *client6_timo __P((void *));
+ int client6_start __P((struct dhcp6_if *));
+ static void info_printf __P((const char *, ...));
+ 
+-extern int client6_script __P((char *, int, struct dhcp6_optinfo *));
++extern int client6_script __P((char *, char *, int, struct dhcp6_optinfo *));
+ 
+ #define MAX_ELAPSED_TIME 0xffff
+ 
+@@ -1978,7 +1978,7 @@ client6_recvreply(ifp, dh6, len, optinfo)
+ 	 */
+ 	if (ifp->scriptpath != NULL && strlen(ifp->scriptpath) != 0) {
+ 		debug_printf(LOG_DEBUG, FNAME, "executes %s", ifp->scriptpath);
+-		client6_script(ifp->scriptpath, state, optinfo);
++		client6_script(ifp->scriptpath, ifp->ifname, state, optinfo);
+ 	}
+ 
+ 	debug_printf(LOG_DEBUG, FNAME, "got an expected reply, sleeping.");
+diff --git a/dhcp6c_script.c b/dhcp6c_script.c
+index 583ac7d..422dcdc 100644
+--- a/dhcp6c_script.c
++++ b/dhcp6c_script.c
+@@ -73,8 +73,9 @@ static char bcmcsserver_str[] = "new_bcmcs_servers";
+ static char bcmcsname_str[] = "new_bcmcs_name";
+ 
+ int
+-client6_script(scriptpath, state, optinfo)
++client6_script(scriptpath, ifname, state, optinfo)
+ 	char *scriptpath;
++	char *ifname;
+ 	int state;
+ 	struct dhcp6_optinfo *optinfo;
+ {
+@@ -84,14 +85,20 @@ client6_script(scriptpath, state, optinfo)
+ 	int nispservers, nispnamelen;
+ 	int bcmcsservers, bcmcsnamelen;
+ 	char **envp, *s;
+-	char reason[] = "REASON=NBI";
++	char ifname_env[32];
++	char reason[32];
++	char prefixinfo[32];
+ 	struct dhcp6_listval *v;
++	struct dhcp6_event ev;
+ 	pid_t pid, wpid;
++	struct dhcp6_listval *iav, *siav;
+ 
+ 	/* if a script is not specified, do nothing */
+ 	if (scriptpath == NULL || strlen(scriptpath) == 0)
+ 		return -1;
+ 
++	ev.state = state;
++
+ 	/* initialize counters */
+ 	dnsservers = 0;
+ 	ntpservers = 0;
+@@ -104,7 +111,7 @@ client6_script(scriptpath, state, optinfo)
+ 	nispnamelen = 0;
+ 	bcmcsservers = 0;
+ 	bcmcsnamelen = 0;
+-	envc = 2;     /* we at least include the reason and the terminator */
++	envc = 4;     /* we at least include the ifname, reason, prefix and the terminator */
+ 
+ 	/* count the number of variables */
+ 	for (v = TAILQ_FIRST(&optinfo->dns_list); v; v = TAILQ_NEXT(v, link))
+@@ -165,7 +172,18 @@ client6_script(scriptpath, state, optinfo)
+ 	/*
+ 	 * Copy the parameters as environment variables
+ 	 */
++	snprintf(ifname_env, sizeof(ifname_env), "IFNAME=%s",
++		ifname);
+ 	i = 0;
++	/* ifname */
++	if ((envp[i++] = strdup(ifname_env)) == NULL) {
++		debug_printf(LOG_NOTICE, FNAME,
++			"failed to allocate ifname strings");
++		ret = -1;
++		goto clean;
++	}
++	snprintf(reason, sizeof(reason), "REASON=%s",
++		dhcp6_event_statestr(&ev));
+ 	/* reason */
+ 	if ((envp[i++] = strdup(reason)) == NULL) {
+ 		debug_printf(LOG_NOTICE, FNAME,
+@@ -173,6 +191,24 @@ client6_script(scriptpath, state, optinfo)
+ 		ret = -1;
+ 		goto clean;
+ 	}
++
++	/* prefix delegation */
++    for (iav = TAILQ_FIRST(&optinfo->iapd_list); iav; iav = TAILQ_NEXT(iav, link)) {
++        for (siav = TAILQ_FIRST(&iav->sublist); siav; siav = TAILQ_NEXT(siav, link)) {
++            if (siav->type == DHCP6_LISTVAL_PREFIX6) {
++                snprintf(prefixinfo, sizeof(prefixinfo),
++                    "PDINFO=%s/%d",
++                    in6addr2str(&siav->val_prefix6.addr, 0),
++                    siav->val_prefix6.plen);
++                if ((envp[i++] = strdup(prefixinfo)) == NULL) {
++                    debug_printf(LOG_NOTICE, FNAME, "failed to allocate prefixinfo strings");
++                    ret = -1;
++                    goto clean;
++                }
++            }
++        }
++    }
++
+ 	/* "var=addr1 addr2 ... addrN" + null char for termination */
+ 	if (dnsservers) {
+ 		elen = sizeof (dnsserver_str) +

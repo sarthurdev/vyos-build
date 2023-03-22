@@ -72,6 +72,8 @@ def call(description, architecture, pkgList, buildCmd) {
             }
         }
     }
+    // Remove build-deps packages before archive
+    sh 'find . -name "*build-deps*.deb" -delete'
     if (architecture == 'amd64') {
         archiveArtifacts artifacts: "**/*.deb", fingerprint: true
         try {

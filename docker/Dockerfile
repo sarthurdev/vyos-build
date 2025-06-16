@@ -18,9 +18,9 @@
 
 # This Dockerfile is installable on x86-64 (amd64) and aarch64 (amd64) systems
 ARG ARCH=
-FROM ${ARCH}debian:bookworm-slim
+FROM ${ARCH}debian:trixie-slim
 
-RUN grep "VERSION_ID" /etc/os-release || (echo 'VERSION_ID="12"' >> /etc/os-release)
+RUN grep "VERSION_ID" /etc/os-release || (echo 'VERSION_ID="13"' >> /etc/os-release)
 
 # It is also possible to emulate an arm system inside docker,
 # execution of this emulated system needs to be executed on an x86 or x86-64 host.
@@ -45,7 +45,7 @@ LABEL authors="VyOS Maintainers <maintainers@vyos.io>" \
       org.opencontainers.image.licenses="GNU" \
       org.opencontainers.image.title="vyos-build" \
       org.opencontainers.image.description="Container to build VyOS ISO" \
-      org.opencontainers.image.base.name="docker.io/debian/debian:bookworm"
+      org.opencontainers.image.base.name="docker.io/debian/debian:trixie"
 ENV DEBIAN_FRONTEND=noninteractive
 
 RUN /bin/echo -e 'APT::Install-Recommends "0";\nAPT::Install-Suggests "0";' > /etc/apt/apt.conf.d/01norecommends
@@ -219,6 +219,7 @@ RUN pip --no-cache --no-cache-dir install --break-system-packages \
       python3-xmltodict \
       python3-lxml \
       python3-nose2 \
+      python3-pytest \
       python3-netifaces \
       python3-jinja2 \
       python3-jmespath \
@@ -289,13 +290,10 @@ RUN apt-get update && apt-get install -y \
       python3-jsonpatch \
       python3-mock \
       python3-oauthlib \
-      python3-pep8 \
       python3-pyflakes \
       python3-serial \
-      python3-unittest2 \
       python3-yaml \
       python3-jsonschema \
-      python3-contextlib2 \
       python3-pytest-cov \
       cloud-utils
 
@@ -314,10 +312,8 @@ RUN git clone -b 4.4.6 https://github.com/perfsonar/i2util.git /tmp/i2util && \
       dpkg -i /tmp/*i2util*_$(dpkg-architecture -qDEB_HOST_ARCH).deb
 
 # Package needed for building Kea
-RUN echo "deb http://deb.debian.org/debian bookworm-backports main" \
-      > /etc/apt/sources.list.d/bookworm-backports.list \
-      && apt-get update \
-      && apt install -y -t bookworm-backports meson
+RUN apt-get update \
+      && apt install -y meson
 
 # Creating image for embedded systems needs this utilities to prepare a image file
 RUN apt-get update && apt-get install -y \

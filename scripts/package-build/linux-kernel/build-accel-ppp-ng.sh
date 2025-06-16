@@ -61,7 +61,7 @@ cmake -DBUILD_IPOE_DRIVER=TRUE \
     -DMODULES_KDIR=${KERNEL_VERSION}${KERNEL_SUFFIX} \
     -DHAVE_VPP=1 \
     -DHAVE_SESSION_HOOKS=1 \
-    -DCPACK_TYPE=Debian12 ..
+    -DCPACK_TYPE=Debian13 ..
 CPATH="${VPP_INCLUDE_PATH}" LIBRARY_PATH="${VPP_LIBRARY_PATH}" make
 
 # Sign generated Kernel modules. Keep the uncompressed .ko next to the

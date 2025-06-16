@@ -21,7 +21,7 @@ packages = [
     "libnl-3-dev",
     "librtr-dev",
     "libpam-dev",
-    "libpcre3-dev",
+    "libpcre2-dev",
     "libprotobuf-c-dev",
     "libpython3-dev:native",
     "python3-sphinx:native",

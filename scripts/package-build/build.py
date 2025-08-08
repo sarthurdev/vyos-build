@@ -148,12 +148,13 @@ def build_package(package: list, patch_dir: Path) -> None:
             prepare_package(repo_dir, package.get('install_data', ''))
 
         # Build dependency package and install it
-        if (repo_dir / 'debian/control').exists():
-            try:
-                run('sudo mk-build-deps --install --tool "apt-get --yes --no-install-recommends"', cwd=repo_dir, check=True, shell=True)
-                run('sudo dpkg -i *build-deps*.deb', cwd=repo_dir, check=True, shell=True)
-            except CalledProcessError as e:
-                print(f"Failed to build package {repo_name}: {e}")
+        if package.get('install_build_deps', True):
+            if (repo_dir / 'debian/control').exists():
+                try:
+                    run('sudo mk-build-deps --install --tool "apt-get --yes --no-install-recommends"', cwd=repo_dir, check=True, shell=True)
+                    run('sudo dpkg -i *build-deps*.deb', cwd=repo_dir, check=True, shell=True)
+                except CalledProcessError as e:
+                    print(f"Failed to build package {repo_name}: {e}")
 
         # Build the package, check if we have build_cmd in the package.toml
         try:

@@ -1,4 +1,24 @@
 [[packages]]
+name = "isc-kea-packaging"
+commit_id = "v3_0"
+scm_url = "https://gitlab.isc.org/isc-projects/kea-packaging.git"
+build_cmd = "/bin/true"
+install_build_deps = false
+
+[[packages]]
 name = "isc-kea"
-commit_id = "debian/2.6.1-2"
-scm_url = "https://salsa.debian.org/debian/isc-kea"
+commit_id = "Kea-3.0.0"
+scm_url = "https://gitlab.isc.org/isc-projects/kea.git"
+pre_build_hook = """
+cp -r ../isc-kea-packaging/debian .
+
+TAG=$(git describe --tags --exact-match)
+VERSION=$(echo $TAG | sed 's/^Kea-//')
+BUILD_DATE=$(date +"%Y%m%d")
+
+sed -i "s/{VERSION}/$VERSION/g" debian/changelog
+sed -i "s/{ISC_VERSION}/$BUILD_DATE/g" debian/changelog
+sed -i "s/{ISC_VERSION}/$BUILD_DATE/g" debian/rules
+
+sed -i "/meson compile -C build doc/d" debian/rules
+"""

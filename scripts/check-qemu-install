@@ -656,30 +656,26 @@ def basic_cli_tests(c):
 
     # Get serial console interface name from flavor definition
     flavor_json = '/usr/share/vyos/flavor.json'
-    c.sendline(f'jq -r ".console_type" {flavor_json}')
+    c.sendline(f'cat {flavor_json}')
     c.expect(op_mode_prompt)
     lines = [l.strip() for l in c.before.splitlines() if l.strip()]
-    console_type = lines[-1].decode('utf-8').strip() # e.g. ttyS
+    ansi_regex = re.compile(r'\x1B(?:[@-Z\\-_]|\[[0-?]*[ -/]*[@-~])')
+    flavor_raw = ansi_regex.sub('', lines[-1].decode('utf-8').strip())
+    flavor = json.loads(flavor_raw)
+    console_type = flavor['console_type']
 
     # We do only care for ttyS or ttyAMA console types, exit early
     # for VGA consoles
     if console_type == 'tty':
         return
 
-    c.sendline(f'jq -r ".console_num" {flavor_json}')
-    c.expect(op_mode_prompt)
-    lines = [l.strip() for l in c.before.splitlines() if l.strip()]
-    console_num = lines[-1].decode('utf-8').strip() # e.g. 0
-
-    # Get serial console speed from flavor definition
-    c.sendline(f'jq -r ".console_speed" {flavor_json}')
-    c.expect(op_mode_prompt)
-    lines = [l.strip() for l in c.before.splitlines() if l.strip()]
-    console_speed = lines[-1].decode('utf-8').strip() # e.g. 115200
+    console_num = flavor['console_num']
+    console_speed = flavor['console_speed']
 
     # Ensure serial console with kernel option is set in CLI, done automatically by image installer
     c.sendline('show configuration commands | match "system console"')
-    c.expect(rf'set system console device {console_type}{console_num} kernel\r\r\nset system console device {console_type}{console_num} speed \'{console_speed}\'')
+    c.expect(f'set system console device {console_type}{console_num} kernel')
+    c.expect(rf'set system console device {console_type}{console_num} speed \'{console_speed}\'')
     c.expect(op_mode_prompt)
 
     # Validate GRUB has the right console_type defined

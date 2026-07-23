@@ -675,8 +675,8 @@ menu clear
                 --archive-areas "{{debian_archive_areas}}" \
                 --backports true \
                 --binary-image iso-hybrid \
-                --bootappend-live "boot=live components hostname=vyos username=live nopersistence noautologin nonetworking union=overlay console="{{boot_settings.console_type}}{{boot_settings.console_num}},{{boot_settings.console_speed}}" console=tty0 net.ifnames=0 biosdevname=0 systemd.ssh_auto=no" \
-                --bootappend-live-failsafe "live components memtest noapic noapm nodma nomce nolapic nomodeset nosmp nosplash vga=normal console="{{boot_settings.console_type}}{{boot_settings.console_num}},{{boot_settings.console_speed}}" console=tty0 net.ifnames=0 biosdevname=0 systemd.ssh_auto=no" \
+                --bootappend-live "boot=live components hostname=vyos username=live nopersistence noautologin nonetworking union=overlay console="{{boot_settings.console_type}}{{boot_settings.console_num}},{{boot_settings.console_speed}}" console=tty0 net.ifnames=0 biosdevname=0 systemd.ssh_auto=no systemd.gpt_auto=no" \
+                --bootappend-live-failsafe "live components memtest noapic noapm nodma nomce nolapic nomodeset nosmp nosplash vga=normal console="{{boot_settings.console_type}}{{boot_settings.console_num}},{{boot_settings.console_speed}}" console=tty0 net.ifnames=0 biosdevname=0 systemd.ssh_auto=no systemd.gpt_auto=no" \
                 --bootloaders "{{bootloaders}}" \
                 --checksums "sha256" \
                 --chroot-squashfs-compression-type "{{squashfs_compression_type}}" \

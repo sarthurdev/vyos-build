@@ -193,6 +193,7 @@ RUN pip --no-cache --no-cache-dir install --break-system-packages \
     apt-get update && apt-get install -y \
       build-essential \
       dh-python \
+      dh-virtualenv \
       fakeroot \
       iproute2 \
       libzmq3-dev \

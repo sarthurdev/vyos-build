@@ -45,7 +45,7 @@ packages = [
     "libxml2-dev",
     "pkg-config",
     "po-debconf",
-    "systemd",
+    "systemd-dev",
     "libsystemd-dev",
     "tzdata"
 ]

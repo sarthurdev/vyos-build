@@ -16,11 +16,11 @@ if [ -f ${EPHEMERAL_KEY} ] && [ -f ${EPHEMERAL_CERT} ]; then
     find ${MODULE_DIR} -type f -name \*.ko | while read MODULE; do
       echo "I: Signing ${MODULE} ..."
       ${SIGN_FILE} sha512 ${EPHEMERAL_KEY} ${EPHEMERAL_CERT} ${MODULE}
-      if [ -f "$CONFIG_FILE" ] && grep -qx "CONFIG_MODULE_COMPRESS_XZ=y" "$CONFIG_FILE"; then
+      if [ -f "$CONFIG_FILE" ] && grep -qx "CONFIG_MODULE_COMPRESS_ZSTD=y" "$CONFIG_FILE"; then
           if [ "${KEEP_UNCOMPRESSED}" = "--keep" ]; then
-              xz --compress --keep ${MODULE}
+              zstd --compress --keep ${MODULE}
           else
-              xz --compress ${MODULE}
+              zstd --compress ${MODULE}
           fi
       fi
     done

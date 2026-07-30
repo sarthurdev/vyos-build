@@ -143,5 +143,6 @@ packages = [
     "snmpd",
     "libnl-genl-3-dev",
     "libxtables-dev",
-    "asciidoc-base"
+    "asciidoc-base",
+    "zstd"
 ]

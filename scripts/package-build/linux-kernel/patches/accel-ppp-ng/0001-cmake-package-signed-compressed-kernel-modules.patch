@@ -3,8 +3,8 @@ Date: Sun, 5 Jul 2026 00:00:00 +0200
 Subject: [PATCH] cmake: package signed/compressed kernel modules
 
 sign-modules.sh signs the built ipoe/vlan_mon/pptp kernel modules and,
-if the target kernel's .config enables CONFIG_MODULE_COMPRESS_XZ,
-compresses them to .ko.xz before cpack packages the Debian archive.
+if the target kernel's .config enables CONFIG_MODULE_COMPRESS_ZSTD,
+compresses them to .ko.zst before cpack packages the Debian archive.
 The Debian packaging rules installed the drivers by their exact
 pre-sign build path (*.ko) unconditionally, so a compressed build
 never actually shipped the compressed module. Mirror sign-modules.sh's
@@ -23,14 +23,14 @@ index 8db274a..64b8f7d 100644
  endif()
 
 +# sign-modules.sh signs the built .ko files and, if the target kernel's
-+# .config has module compression enabled, xz-compresses them in place.
++# .config has module compression enabled, zstd-compresses them in place.
 +# Mirror that check here so we install whichever artifact actually ends
 +# up on disk.
 +SET(KMOD_EXT ".ko")
 +IF (DEFINED KDIR AND EXISTS "${KDIR}/.config")
-+	FILE(STRINGS "${KDIR}/.config" _ACCEL_PPP_KMOD_COMPRESS_XZ REGEX "^CONFIG_MODULE_COMPRESS_XZ=y$")
-+	IF (_ACCEL_PPP_KMOD_COMPRESS_XZ)
-+		SET(KMOD_EXT ".ko.xz")
++	FILE(STRINGS "${KDIR}/.config" _ACCEL_PPP_KMOD_COMPRESS_ZSTD REGEX "^CONFIG_MODULE_COMPRESS_ZSTD=y$")
++	IF (_ACCEL_PPP_KMOD_COMPRESS_ZSTD)
++		SET(KMOD_EXT ".ko.zst")
 +	ENDIF ()
 +ENDIF ()
 +

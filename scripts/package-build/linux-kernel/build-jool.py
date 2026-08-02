@@ -46,7 +46,7 @@ sources_archive.write_bytes(get(SOURCES_URL).content)
 
 # prepare sources
 debmake_cmd: list[str] = [
-    'debmake', '-e', 'support@vyos.io', '-f', 'VyOS Support', '-p',
+    'debmake', '-z', 'tar.gz', '-e', 'support@vyos.io', '-f', 'VyOS Support', '-p',
     PACKAGE_NAME, '-u', PACKAGE_VERSION, '-a', SOURCES_ARCHIVE
 ]
 run(debmake_cmd)

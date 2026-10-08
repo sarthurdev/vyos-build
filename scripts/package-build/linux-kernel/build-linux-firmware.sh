@@ -97,8 +97,11 @@ PACKAGE_VERSION=$(debian_version "${GIT_COMMIT}")
 
 cd ${VYOS_FIRMWARE_DIR}
 
-debmake -n -y -p ${VYOS_FIRMWARE_NAME} -u ${PACKAGE_VERSION} \
+debmake -t -y -p ${VYOS_FIRMWARE_NAME} -u ${PACKAGE_VERSION} \
     -e maintainers@vyos.net -f "VyOS Package Maintainers"
+
+# Debmake creates the package source in a properly named directory
+cd ${CWD}/${VYOS_FIRMWARE_NAME}-${PACKAGE_VERSION}
 
 cat << EOF > debian/control
 Source: ${VYOS_FIRMWARE_NAME}

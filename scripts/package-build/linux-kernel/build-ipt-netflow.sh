@@ -35,8 +35,11 @@ PACKAGE_NAME=vyos-ipt-netflow
 PACKAGE_VERSION=$(debian_version "$(git describe | sed s/^v//)")
 UNAME_ARCH=$(uname -m)
 
-debmake -n -y -p ${PACKAGE_NAME} -u ${PACKAGE_VERSION} \
+debmake -t -y -p ${PACKAGE_NAME} -u ${PACKAGE_VERSION} \
     -e maintainers@vyos.net -f "VyOS Package Maintainers"
+
+# Debmake creates the package source in a properly named directory
+cd ${CWD}/${PACKAGE_NAME}-${PACKAGE_VERSION}
 
 echo "misc:Depends=linux-image-${KERNEL_VERSION}${KERNEL_SUFFIX}" > debian/${PACKAGE_NAME}.substvars
 

@@ -58,8 +58,11 @@ fi
 PACKAGE_NAME=vyos-intel-$(echo ${DRIVER_NAME} | tr 'A-Z' 'a-z')
 PACKAGE_VERSION=$(debian_version "${DRIVER_VERSION}${DRIVER_VERSION_EXTRA}")
 
-debmake -n -y -p ${PACKAGE_NAME} -u ${PACKAGE_VERSION} \
+debmake -t -y -p ${PACKAGE_NAME} -u ${PACKAGE_VERSION} \
     -e maintainers@vyos.net -f "VyOS Package Maintainers"
+
+# Debmake creates the package source in a properly named directory
+cd ${CWD}/${PACKAGE_NAME}-${PACKAGE_VERSION}
 
 echo "misc:Depends=linux-image-${KERNEL_VERSION}${KERNEL_SUFFIX}" > debian/${PACKAGE_NAME}.substvars
 

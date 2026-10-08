@@ -21,7 +21,7 @@ if [ -e ${SOURCES_ARCHIVE} ]; then
 fi
 curl -L -o ${SOURCES_ARCHIVE} ${SOURCES_URL}
 
-debmake -e support@vyos.io -f "VyOS Support" -p ${PACKAGE_NAME} -u ${PACKAGE_VERSION} -a ${SOURCES_ARCHIVE}
+debmake -e support@vyos.io -f "VyOS Support" -p ${PACKAGE_NAME} -u ${PACKAGE_VERSION} -a ${SOURCES_ARCHIVE} -z "tar.gz"
 
 echo "misc:Depends=linux-image-${KERNEL_VERSION}${KERNEL_SUFFIX}" > ${PACKAGE_DIR}/debian/${PACKAGE_NAME}.substvars
 

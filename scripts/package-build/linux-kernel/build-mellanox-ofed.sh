@@ -95,6 +95,9 @@ rm -f SOURCES/sockperf_*.tar.gz
 rm -f SOURCES/srp_*.tar.gz
 rm -f SOURCES/ucx_*.tar.gz
 
+# Remove the pkg remove requirement
+sed -i 's/librdmacm librdmacm1 librdmacm1-dbg librdmacm-dev//g' install.pl
+
 ./install.pl \
   --basic --dpdk \
   --without-dkms \

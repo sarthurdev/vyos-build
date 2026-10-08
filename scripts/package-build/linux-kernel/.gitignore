@@ -11,6 +11,7 @@
 /nat-rtsp*
 /jool*
 /ipt-netflow*
+/vyos-ipt-netflow*
 /qat*
 /QAT*
 *.tar.gz

@@ -249,10 +249,6 @@ jobs:
             trigger_build "pam_tacplus"
           fi
 
-          if [ "${{ steps.changes.outputs.pdns-recursor }}" == "true" ]; then
-            trigger_build "pdns-recursor"
-          fi
-
           if [ "${{ steps.changes.outputs.podman }}" == "true" ]; then
             trigger_build "podman"
           fi
